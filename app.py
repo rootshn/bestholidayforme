@@ -6,13 +6,21 @@ from datetime import date, timedelta
 # ==========================================
 # 1. AYARLAR, CSS VE DIL PAKETI
 # ==========================================
-st.set_page_config(page_title="Smart Leave", layout="wide", initial_sidebar_state="auto")
+# GÜNCELLEME: page_icon="✈️" eklendi.
+st.set_page_config(page_title="Smart Leave", page_icon="✈️", layout="wide", initial_sidebar_state="auto")
 
-# CSS:
+# CSS: GÜNCELLEME: Streamlit menülerini gizleyen kodlar eklendi.
 st.markdown("""
 <style>
+    /* --- STREAMLIT BRANDING GİZLEME --- */
+    #MainMenu {visibility: hidden;}
+    .stDeployButton {display:none;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* --- MEVCUT TASARIM --- */
     .metric-card {
-        background-color: #FFFFFF;
+        background-color: #FFFFFF !important;
         border: 1px solid #dcdcdc;
         border-radius: 6px;
         padding: 15px;
@@ -23,7 +31,7 @@ st.markdown("""
     }
     .metric-label {
         font-size: 12px;
-        color: #555555 !important;
+        color: #333333 !important;
         margin-bottom: 5px;
         font-weight: 600;
         text-transform: uppercase;
@@ -32,7 +40,7 @@ st.markdown("""
     .metric-value {
         font-size: 24px;
         font-weight: 700;
-        color: #222222 !important;
+        color: #000000 !important;
         margin: 0;
     }
     .stLinkButton a {
@@ -300,14 +308,12 @@ if calc_button:
             df = optimize_holidays(selected_code, start_d, end_d, max_bridge, subdiv=selected_subdiv)
         
         if not df.empty:
-            # --- GÜNCELLENEN KISIM: SIRALAMA MANTIĞI ---
+            # --- SIRALAMA MANTIĞI ---
             
             # 1. EN İYİ FIRSATI BUL (Verimlilik puanı en yüksek olan)
-            # Bu, en üstteki kartlarda gösterilecek.
             best = df.sort_values(by=["Verimlilik", "Toplam Tatil"], ascending=False).iloc[0]
 
             # 2. LİSTEYİ TARİHE GÖRE SIRALA (Ocak -> Aralık)
-            # Bu, aşağıdaki "Tüm Fırsatlar" listesinde gösterilecek.
             df = df.sort_values(by=["Baslangic"], ascending=True).reset_index(drop=True)
 
             # --- GÖRSELLEŞTİRME ---
@@ -334,7 +340,7 @@ if calc_button:
                 start_str = row['Baslangic'].strftime("%Y-%m-%d")
                 end_str = row['Bitis'].strftime("%Y-%m-%d")
                 
-                # Affiliate Link Yapisi (Daha sonra ID eklenecek)
+                # Affiliate Link Yapisi
                 flight_url = f"https://www.skyscanner.com.tr/transport/flights/{selected_code.lower()}/everywhere/{start_str}/{end_str}/"
                 hotel_url = f"https://www.booking.com/searchresults.html?ss={COUNTRY_OPTIONS[selected_code]}&checkin={start_str}&checkout={end_str}"
                 
