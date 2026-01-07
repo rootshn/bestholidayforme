@@ -6,19 +6,17 @@ from datetime import date, timedelta
 # ==========================================
 # 1. AYARLAR, CSS VE DIL PAKETI
 # ==========================================
-# GÜNCELLEME: page_icon="✈️" eklendi.
 st.set_page_config(page_title="Smart Leave", page_icon="✈️", layout="wide", initial_sidebar_state="auto")
 
-# CSS: GÜNCELLEME: Streamlit menülerini gizleyen kodlar eklendi.
+# CSS: GÜNCELLEME: Mobil menü butonunun (hamburger) görünmesi için 'header' gizlemeyi kaldırdık.
 st.markdown("""
 <style>
-    /* --- STREAMLIT BRANDING GİZLEME --- */
-    #MainMenu {visibility: hidden;}
-    .stDeployButton {display:none;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* --- STREAMLIT BRANDING GİZLEME (Mobil Menü Kalsın Diye Header Gizlenmedi) --- */
+    #MainMenu {visibility: hidden;} /* Sağ üstteki 3 noktayı gizler */
+    .stDeployButton {display:none;} /* Deploy butonunu gizler */
+    footer {visibility: hidden;}    /* Alttaki 'Made with Streamlit' yazısını gizler */
     
-    /* --- MEVCUT TASARIM --- */
+    /* --- KART TASARIMLARI --- */
     .metric-card {
         background-color: #FFFFFF !important;
         border: 1px solid #dcdcdc;
@@ -58,7 +56,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- COKLU DIL SOZLUGU ---
-# Her ulke kodu icin arayuz metinleri
 TEXTS = {
     "TR": {
         "title": "Tatil Planlayıcı",
@@ -165,10 +162,11 @@ GERMAN_STATES = {
 }
 
 # Ulke Listesi (Kod -> Ekranda Gorunecek Isim)
+# GÜNCELLEME: Türkiye ismi güncellendi.
 COUNTRY_OPTIONS = {
-    "US": "United States", # Varsayilan (EN)
+    "US": "United States", 
     "GB": "United Kingdom",
-    "TR": "Turkey",
+    "TR": "Türkiye", # Turkey yerine Türkiye yapildi
     "DE": "Germany",
     "PL": "Poland"
 }
@@ -254,7 +252,6 @@ def optimize_holidays(country_code, start_date, end_date, max_bridge_days, subdi
 
 with st.sidebar:
     # --- DIL VE ULKE SECIMI ---
-    # Varsayilan olarak US secili gelir -> Dil Ingilizce olur
     selected_code = st.selectbox("Select Country", options=list(COUNTRY_OPTIONS.keys()), format_func=lambda x: COUNTRY_OPTIONS[x])
     
     # Dil belirleme mantigi
@@ -310,17 +307,16 @@ if calc_button:
         if not df.empty:
             # --- SIRALAMA MANTIĞI ---
             
-            # 1. EN İYİ FIRSATI BUL (Verimlilik puanı en yüksek olan)
+            # 1. EN İYİ FIRSATI BUL
             best = df.sort_values(by=["Verimlilik", "Toplam Tatil"], ascending=False).iloc[0]
 
-            # 2. LİSTEYİ TARİHE GÖRE SIRALA (Ocak -> Aralık)
+            # 2. LİSTEYİ TARİHE GÖRE SIRALA
             df = df.sort_values(by=["Baslangic"], ascending=True).reset_index(drop=True)
 
             # --- GÖRSELLEŞTİRME ---
 
             st.markdown(f"### {T['best_option']}")
             
-            # 3'lu metrik kart yapisi
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.markdown(f"""<div class="metric-card"><div class="metric-label">{T['leave_days']}</div><div class="metric-value">{best['Kullanilacak Izin']}</div></div>""", unsafe_allow_html=True)
@@ -329,7 +325,6 @@ if calc_button:
             with c3:
                 st.markdown(f"""<div class="metric-card"><div class="metric-label">{T['efficiency']}</div><div class="metric-value">{best['Verimlilik']}x</div></div>""", unsafe_allow_html=True)
             
-            # Bilgilendirme (Emojisiz)
             st.success(f"**{T['reason']}:** {best['Sebep']} \n\n {best['Baslangic'].strftime('%d.%m.%Y')} - {best['Bitis'].strftime('%d.%m.%Y')}")
             
             st.write("---")
